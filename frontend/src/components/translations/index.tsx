@@ -9,8 +9,9 @@
 
 import { faLanguage } from "@fortawesome/free-solid-svg-icons";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { Button, Chip, Grid, Paper, Stack } from "@mui/material";
+import { Button, Chip, Grid, Paper, Stack, Select, MenuItem } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { DeleteDialog } from "@/app-components/dialogs";
@@ -64,6 +65,11 @@ export const Translations = () => {
       toast.success(t("message.item_delete_success"));
     },
   });
+  const [filterStatus, setFilterStatus] = useState<"all" | "translated" | "untranslated">("all");  // Added state for filter
+  const handleStatusFilterChange = (event) => {  // Added filter handler
+    setFilterStatus(event.target.value);
+    onSearch({ status: event.target.value });
+  };
   const { mutateAsync: checkRefreshTranslations, isLoading } =
     useRefreshTranslations({
       onError: () => {
@@ -120,6 +126,7 @@ export const Translations = () => {
       field: "createdAt",
       headerName: t("label.createdAt"),
       resizable: false,
+      sortable: true,
       valueGetter: (params) =>
         t("datetime.updated_at", getDateTimeFormatter(params)),
     },
@@ -128,6 +135,7 @@ export const Translations = () => {
       field: "updatedAt",
       headerName: t("label.updatedAt"),
       resizable: false,
+      sortable: true,
       valueGetter: (params) =>
         t("datetime.updated_at", getDateTimeFormatter(params)),
     },
@@ -146,6 +154,17 @@ export const Translations = () => {
           flexShrink={0}
           width="max-content"
         >
+          <Grid item>
+        <Select
+          value={filterStatus}
+          onChange={handleStatusFilterChange}
+          displayEmpty
+        >
+          <MenuItem value="all">{t("label.all")}</MenuItem>
+          <MenuItem value="translated">{t("label.translated")}</MenuItem>
+          <MenuItem value="untranslated">{t("label.untranslated")}</MenuItem>
+        </Select>
+        </Grid>
           <Grid item>
             <FilterTextfield onChange={onSearch} />
           </Grid>
